@@ -912,3 +912,395 @@ vector<int> printRightView(BinaryTreeNode<int>* root) {
     }
     return ans;
 }
+
+
+
+//Count Ways To Reach The N-th Stairs
+
+
+#include <bits/stdc++.h> 
+
+int countDistinctWays(int n){
+    if(n==1||n==0)return 1;
+    if(n==2)return 2;
+    int mod=1e9+7;
+    vector<int> dp(n+1,-1);
+    dp[0]=1;
+    dp[1]=1;
+    dp[2]=2;
+    for(int i=3;i<=n;i++){
+        dp[i]=(dp[i-1]+dp[i-2])%mod;
+    }
+    return dp[n];
+}
+
+
+
+//Top View Of Binary Tree
+
+
+
+#include<map>
+vector<int> getTopView(TreeNode<int> *root)
+{
+    // Write your code here.
+    queue<pair<TreeNode<int> *,int>>q;
+    q.push({root,0});
+    vector<int> ans;
+    map<int,int> m;
+    if(!root)return ans;
+    while(!q.empty()){
+        TreeNode<int> *node=q.front().first;
+        int lev=q.front().second;
+        q.pop();
+        if(m.find(lev)==m.end())m[lev]=node->data;
+        if(node->left)q.push({node->left,lev-1});
+        if(node->right)q.push({node->right,lev+1});
+    }
+    for(auto it:m){
+        ans.push_back(it.second);
+    }
+    return ans;
+}
+
+
+
+
+// Add Two Numbers As Linked Lists ll
+
+#include <bits/stdc++.h> 
+/************************************************************
+
+    Following is the linked list node structure:
+    
+    template <typename T>
+    class Node {
+        public:
+        T data;
+        Node* next;
+
+        Node(T data) {
+            next = NULL;
+            this->data = data;
+        }
+    };
+
+************************************************************/
+Node<int>* reverse(Node<int>* node){
+    Node<int>*pre=NULL;
+    Node<int>*curr=node;
+    Node<int>*nxt;
+    while(curr){
+        nxt=curr->next;
+        curr->next=pre;
+        pre=curr;
+        curr=nxt;
+    }
+    return pre;
+}
+Node<int>* addTwoLists(Node<int>* first, Node<int>* second) {
+    // Write your code here.
+    Node<int>* ans=new Node<int>(-1);
+    Node<int>* temp=ans;
+    Node<int>*f=reverse(first);
+    Node<int>*s=reverse(second);
+    int curr;
+    int rem=0;
+    while(f&&s){
+        curr=(f->data+s->data+rem)%10;
+        rem=(f->data+s->data+rem)/10;
+        Node<int>*pro=new Node<int>(curr);
+        temp->next=pro;
+        temp=temp->next;
+        f=f->next;
+        s=s->next;
+    }
+    while(f){
+        curr=(f->data+rem)%10;
+        rem=(f->data+rem)/10;
+        Node<int>*pro=new Node<int>(curr);
+        temp->next=pro;
+        temp=temp->next;
+        f=f->next;
+    }
+    while(s){
+        curr=(s->data+rem)%10;
+        rem=(s->data+rem)/10;
+        Node<int>*pro=new Node<int>(curr);
+        temp->next=pro;
+        temp=temp->next;
+        s=s->next;
+    }
+    if(rem){
+         Node<int>*pro=new Node<int>(rem);
+         temp->next=pro;
+    }
+    return reverse(ans->next);
+}
+
+
+
+// Next Permutation
+
+
+#include <bits/stdc++.h> 
+void reverse(vector<int>& arr,int s,int e){
+    while(s<e){
+        int temp=arr[s];
+        arr[s]=arr[e];
+        arr[e]=temp;
+        s++;
+        e--;
+    }
+}
+vector<int> nextPermutation(vector<int> &per, int n)
+{
+    //  Write your code here.
+    int maxi=0;
+    int curr=-1;
+    for(int i=n-1;i>=0;i--){
+        if(maxi>per[i]){
+            curr=i;
+            break;
+        }
+        maxi=max(maxi,per[i]);
+    }
+    if(curr==-1){
+        reverse(per.begin(),per.end());
+        return per;
+    }
+    for(int i=n-1;i>=0;i--){
+        if(per[i]>per[curr]){
+            int temp=per[i];
+            per[i]=per[curr];
+            per[curr]=temp;
+            break;
+        }
+    }
+    reverse(per,curr+1,n-1);
+    return per;
+}
+
+
+
+//Maximum Sum Path Of A Binary Tree.
+
+int help(BinaryTreeNode<int> *root,int& ans){
+    if(root==NULL)return 0;
+    int curr=0;
+    int a=help(root->left,ans);
+    int b=help(root->right,ans);
+    curr=max(curr,max(a,b));
+    ans=max(ans,max(root->data,max(root->data+a,max(root->data+b,root->data+a+b))));
+    return curr+root->data;
+}
+int maxPathSum(BinaryTreeNode<int> *root)
+{
+    // Write your code here
+    if(!root->left&&!root->right)return root->data;
+    int ans=INT_MIN;
+    int dummy=help(root,ans);
+    return ans;
+}
+
+
+
+// Median of two sorted arrays
+
+int help2(vector<int>& arr,int curr,int node){
+	int l=lower_bound(arr.begin(),arr.end(),node)-arr.begin();
+	if(l==arr.size()||arr[l]>node){
+		if(l==curr)return 0;
+		if(curr<l)return -1;
+		return 1;
+	}
+	int u=upper_bound(arr.begin()+l,arr.end(),node)-arr.begin();
+	if(curr>=l&&curr<=u)return 0;
+	else if(curr<l)return -1;
+	return 1;
+}
+double help(vector<int>& a, vector<int>& b,int curr){
+	int s=0;
+	int e=a.size()-1;
+	while(s<=e){
+		int mid=(s+e)/2;
+		int ultra=help2(b,curr-mid,a[mid]);
+		if(ultra==0){
+			return a[mid];
+		}
+		else if(ultra<0){
+			e=mid-1;
+		}
+		else{
+			s=mid+1;
+		}
+	}
+	s=0;
+	e=b.size()-1;
+	while(s<=e){
+		int mid=(s+e)/2;
+		int ultra=help2(a,curr-mid,b[mid]);
+		if(ultra==0){
+			return b[mid];
+		}
+		else if(ultra<0){
+			e=mid-1;
+		}
+		else{
+			s=mid+1;
+		}
+	}
+	return -1;
+}
+double median(vector<int>& a, vector<int>& b) {
+	// Write your code here.
+	int size=a.size()+b.size();
+	if(size%2){
+		return help(a,b,size/2);
+	}
+	double x=help(a,b,size/2);
+	double y=help(a,b,(size/2)-1);
+	return (x+y)/2;
+}
+
+
+
+// Next Greater Element
+
+#include<stack>
+vector<int> nextGreaterElement(vector<int>& arr, int n)
+{
+	// Write your code here
+	vector<int> ans(n,-1);
+	stack<int> st;
+	for(int i=n-1;i>=0;i--){
+		while(!st.empty()&&st.top()<=arr[i]){
+			st.pop();
+		}
+		if(!st.empty())ans[i]=st.top();
+		st.push(arr[i]);
+	}
+	return ans;
+}
+
+
+
+//Merge Sort
+
+void help(vector<int> & arr,int s ,int e,vector<int>&temp){
+    if(s==e)return ;
+    if(s+1==e){
+        if(arr[s]>arr[e]){
+            int pro=arr[s];
+            arr[s]=arr[e];
+            arr[e]=pro;
+        }
+        return;
+    }
+    int mid=s+((e+1)-s)/2;
+    help(arr,s,mid-1,temp);
+    help(arr,mid,e,temp);
+    int as=s;
+    int ae=mid-1;
+    int bs=mid;
+    int be=e;
+    int i=as;
+    int j=bs;
+    int k=s;
+    while(i<=ae&&j<=be){
+        if(arr[i]<arr[j]){
+            temp[k++]=arr[i++];
+        }
+        else{
+            temp[k++]=arr[j++];
+        }
+    }
+    while(i<=ae){
+        temp[k++]=arr[i++];
+    }
+    while(j<=be){
+        temp[k++]=arr[j++];
+    }
+    for(int p=s;p<=e;p++){
+        arr[p]=temp[p];
+    }
+}
+void mergeSort(vector < int > & arr, int n) {
+    // Write your code here.
+    vector<int> temp(n);
+    help(arr,0,n-1,temp);
+}
+
+
+
+// Longest Increasing Subsequence
+
+#include<vector>
+int longestIncreasingSubsequence(int arr[], int n)
+{
+    // Write Your Code here
+    vector<int> ans;
+    ans.push_back(arr[0]);
+    for(int i=1;i<n;i++){
+        if(arr[i]>ans.back())ans.push_back(arr[i]);
+        else{
+            int lb=lower_bound(ans.begin(),ans.end(),arr[i])-ans.begin();
+            ans[lb]=arr[i];
+        }
+    }
+    return ans.size();
+}
+
+
+
+
+// Search In Rotated Sorted Array
+
+int search(int* arr, int n, int key) {
+    // Write your code here.
+    int s=0;
+    int e=n-1;
+    while(s<=e){
+        int mid=(s+e)/2;
+        if(arr[mid]==key)return mid;
+        if((arr[mid]>=arr[0]&&((key>arr[mid])||(arr[0]>key)))||(arr[mid]<key&&arr[0]>arr[mid]&&arr[n-1]>=key)){
+            s=mid+1;
+        }
+        else{
+            e=mid-1;
+        }
+    }
+    return -1;
+}
+
+
+
+// Find Number Of Islands
+
+
+int row[]={-1,-1,-1,0,0,1,1,1};
+int col[]={-1,0,1,-1,1,-1,0,1};
+void dfs(int** arr,int n,int m,int i,int j){
+   if(i<0||i>=n||j<0||j>=m||arr[i][j]==0)return ;
+   arr[i][j]=0;
+   for(int p=0;p<8;p++){
+      int ci=i+row[p];
+      int cj=j+col[p];
+      dfs(arr,n,m,ci,cj);
+   }
+}
+int getTotalIslands(int** arr, int n, int m)
+{
+   // Write your code here.
+   int ans=0;
+   for(int i=0;i<n;i++){
+      for(int j=0;j<m;j++){
+         if(arr[i][j]==1){
+            dfs(arr,n,m,i,j);
+            ans++;
+         }
+      }
+   }
+   return ans;
+}
+
